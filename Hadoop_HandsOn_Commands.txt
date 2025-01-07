@@ -175,13 +175,6 @@ drwxr-xr-x   - cloudera supergroup          0 2025-01-07 02:18 /user/cloudera/my
 [cloudera@quickstart ~]$ #here we have fileDeletionCheck, lets check we have content in it or not.. 
 [cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/fileDeletionCheck
 Keeping some data to test the file deletion
-[cloudera@quickstart ~]$ #Here we 
-Message from syslogd@quickstart at Jan  7 02:44:03 ...
- kernel:BUG: soft lockup - CPU#0 stuck for 133s! [java:7453]
-
-Message from syslogd@quickstart at Jan  7 02:47:31 ...
- kernel:BUG: soft lockup - CPU#0 stuck for 79s! [java:7453]
-
 [cloudera@quickstart ~]$ #Here we file in hdfs, lets check in local system we have that file or not, according to result it should deleted.. 
 [cloudera@quickstart ~]$ ls 
 1          Public                    cm_api.py                   hbase.sh
@@ -506,7 +499,3 @@ drwxr-xr-x   - cloudera supergroup          0 2025-01-07 02:18 /user/cloudera/my
 [cloudera@quickstart ~]$ 
 [cloudera@quickstart ~]$ 
 [cloudera@quickstart ~]$ #end of hadoopppppppp...............
-Message from syslogd@quickstart at Jan  7 04:07:54 ...
- kernel:BUG: soft lockup - CPU#0 stuck for 259s! [java:7453]
-
-[cloudera@quickstart ~]$  
