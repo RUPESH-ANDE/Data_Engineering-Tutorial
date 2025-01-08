@@ -1,0 +1,1490 @@
+Last login: Wed Jan  8 07:56:44 on console
+rupeshande@Rupeshs-MacBook-Air ~ % ssh -ohostkeyalgorithms=ssh-rsa cloudera@192.168.64.4
+cloudera@192.168.64.4's password: 
+Last login: Tue Jan  7 06:08:07 2025 from 192.168.64.1
+-bash: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory
+[cloudera@quickstart ~]$ #sqoop begins....
+[cloudera@quickstart ~]$ #login to mysql...
+[cloudera@quickstart ~]$ mysql -uroot -pcloudera
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 15
+Server version: 5.1.73 Source distribution
+
+Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| cm                 |
+| firehose           |
+| hue                |
+| metadata           |
+| metastore          |
+| mysql              |
+| nav                |
+| navms              |
+| oozie              |
+| retail_db          |
+| rman               |
+| sentry             |
+| sqoopdata          |
++--------------------+
+14 rows in set (0.05 sec)
+
+mysql> use metastore;
+Database changed
+mysql> show tables;
+Empty set (0.07 sec)
+
+mysql> drop database metastore;
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> use metadata;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++--------------------+
+| Tables_in_metadata |
++--------------------+
+| copydata           |
+| exportcopy         |
+| newdata            |
++--------------------+
+3 rows in set (0.02 sec)
+
+mysql> select * from copydata;
++------+--------+---------+-------------------+
+| id   | amount | amount2 | name              |
++------+--------+---------+-------------------+
+|    1 |     50 |      39 | Krishna           |
+|    2 |     43 |      99 | Radha             |
+|    3 |     67 |      38 | Arjun             |
+|    4 |     88 |      27 | Bheem             |
+|    5 |     71 |      77 | Nakula            |
+|    6 |     70 |      20 | Sahadeva          |
+|    7 |     93 |       2 | Draupadi          |
+|    8 |     32 |      56 | Karna             |
+|    9 |     84 |      52 | Duryodhana        |
+|   10 |     10 |      93 | Bhishma           |
+|   11 |     23 |      45 | Subhadra          |
+|   12 |     33 |      45 | Damodara          |
+|   13 |     14 |      82 | Bhishma pithamaha |
+|   14 |     81 |      71 | Narayana          |
+|   15 |     11 |      45 | Vasudeva suthahh  |
+|   16 |     34 |      56 | Hare krishna      |
++------+--------+---------+-------------------+
+16 rows in set (0.02 sec)
+
+mysql> select * from exportcopy;
++------+--------+---------+-------------------+
+| id   | amount | amount2 | name              |
++------+--------+---------+-------------------+
+|   14 |     81 |      71 | Narayana          |
+|    6 |     70 |      20 | Sahadeva          |
+|   10 |     10 |      93 | Bhishma           |
+|    1 |     50 |      39 | Krishna           |
+|   15 |     11 |      45 | Vasudeva suthahh  |
+|    7 |     93 |       2 | Draupadi          |
+|    8 |     32 |      56 | Karna             |
+|    2 |     43 |      99 | Radha             |
+|    3 |     67 |      38 | Arjun             |
+|    4 |     88 |      27 | Bheem             |
+|    5 |     71 |      77 | Nakula            |
+|    9 |     84 |      52 | Duryodhana        |
+|   11 |     23 |      45 | Subhadra          |
+|   12 |     33 |      45 | Damodara          |
+|   13 |     14 |      82 | Bhishma pithamaha |
++------+--------+---------+-------------------+
+15 rows in set (0.01 sec)
+
+mysql> select * from newdata;
++------+--------+---------+-------------------+
+| id   | amount | amount2 | name              |
++------+--------+---------+-------------------+
+|    1 |     50 |      39 | Krishna           |
+|    2 |     43 |      99 | Radha             |
+|    3 |     67 |      38 | Arjun             |
+|    4 |     88 |      27 | Bheem             |
+|    5 |     71 |      77 | Nakula            |
+|    6 |     70 |      20 | Sahadeva          |
+|    7 |     93 |       2 | Draupadi          |
+|    8 |     32 |      56 | Karna             |
+|    9 |     84 |      52 | Duryodhana        |
+|   10 |     10 |      93 | Bhishma           |
+|   11 |     23 |      45 | Subhadra          |
+|   12 |     33 |      45 | Damodara          |
+|   13 |     14 |      82 | Bhishma pithamaha |
+|   14 |     81 |      71 | Narayana          |
+|   15 |     11 |      45 | Vasudeva suthahh  |
++------+--------+---------+-------------------+
+15 rows in set (0.01 sec)
+
+mysql> quit;
+Bye
+[cloudera@quickstart ~]$ #sqoop normal import from mysql to hdfs 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --m 1 --table newdata --target-dir /user/cloudera/sqoop1
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 01:59:05 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 01:59:05 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 01:59:07 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 01:59:07 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 01:59:12 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 01:59:12 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 01:59:12 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/1b0e2b6ef177dc9116f359f72d338d14/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 01:59:48 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/1b0e2b6ef177dc9116f359f72d338d14/newdata.jar
+25/01/08 01:59:48 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 01:59:48 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 01:59:48 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 01:59:48 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 01:59:49 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 01:59:49 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 01:59:52 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 01:59:59 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 02:00:01 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 02:00:19 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:00:29 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 02:00:29 INFO mapreduce.JobSubmitter: number of splits:1
+25/01/08 02:00:30 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0001
+25/01/08 02:00:36 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0001
+25/01/08 02:00:36 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0001/
+25/01/08 02:00:36 INFO mapreduce.Job: Running job: job_1736327762537_0001
+25/01/08 02:02:13 INFO mapreduce.Job: Job job_1736327762537_0001 running in uber mode : false
+25/01/08 02:02:13 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 02:03:28 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 02:03:33 INFO mapreduce.Job: Job job_1736327762537_0001 completed successfully
+25/01/08 02:03:34 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=151411
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=87
+		HDFS: Number of bytes written=263
+		HDFS: Number of read operations=4
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Other local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=65370
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=65370
+		Total vcore-milliseconds taken by all map tasks=65370
+		Total megabyte-milliseconds taken by all map tasks=66938880
+	Map-Reduce Framework
+		Map input records=15
+		Map output records=15
+		Input split bytes=87
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=701
+		CPU time spent (ms)=6520
+		Physical memory (bytes) snapshot=101961728
+		Virtual memory (bytes) snapshot=2729799680
+		Total committed heap usage (bytes)=52822016
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=263
+25/01/08 02:03:34 INFO mapreduce.ImportJobBase: Transferred 263 bytes in 215.0832 seconds (1.2228 bytes/sec)
+25/01/08 02:03:34 INFO mapreduce.ImportJobBase: Retrieved 15 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ ##Let's verify the data in hdfs 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop1
+Found 2 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 02:03 /user/cloudera/sqoop1/_SUCCESS
+-rw-r--r--   1 cloudera supergroup        263 2025-01-08 02:03 /user/cloudera/sqoop1/part-m-00000
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop1/part-m-00000
+1,50,39,Krishna
+2,43,99,Radha
+3,67,38,Arjun
+4,88,27,Bheem
+5,71,77,Nakula
+6,70,20,Sahadeva
+7,93,2,Draupadi
+8,32,56,Karna
+9,84,52,Duryodhana
+10,10,93,Bhishma
+11,23,45,Subhadra
+12,33,45,Damodara
+13,14,82,Bhishma pithamaha
+14,81,71,Narayana
+15,11,45,Vasudeva suthahh
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #second sqoop import using where condition 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --m 1 --table newdata --target-dir /user/cloudera/sqoop2 --where "amount>50"
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 02:10:04 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 02:10:04 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 02:10:05 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 02:10:05 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 02:10:09 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 02:10:09 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 02:10:09 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/acd47321193b60b57473ee4b1e09659e/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 02:10:36 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/acd47321193b60b57473ee4b1e09659e/newdata.jar
+25/01/08 02:10:37 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 02:10:37 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 02:10:37 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 02:10:37 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 02:10:37 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 02:10:37 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 02:10:39 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 02:10:46 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 02:10:48 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 02:11:01 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:11:04 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:11:10 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 02:11:11 INFO mapreduce.JobSubmitter: number of splits:1
+25/01/08 02:11:12 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0002
+25/01/08 02:11:16 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0002
+25/01/08 02:11:16 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0002/
+25/01/08 02:11:16 INFO mapreduce.Job: Running job: job_1736327762537_0002
+25/01/08 02:12:43 INFO mapreduce.Job: Job job_1736327762537_0002 running in uber mode : false
+25/01/08 02:12:43 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 02:13:49 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 02:13:52 INFO mapreduce.Job: Job job_1736327762537_0002 completed successfully
+25/01/08 02:13:54 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=151703
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=87
+		HDFS: Number of bytes written=113
+		HDFS: Number of read operations=4
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Other local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=60989
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=60989
+		Total vcore-milliseconds taken by all map tasks=60989
+		Total megabyte-milliseconds taken by all map tasks=62452736
+	Map-Reduce Framework
+		Map input records=7
+		Map output records=7
+		Input split bytes=87
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=388
+		CPU time spent (ms)=5760
+		Physical memory (bytes) snapshot=103493632
+		Virtual memory (bytes) snapshot=2729611264
+		Total committed heap usage (bytes)=52822016
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=113
+25/01/08 02:13:54 INFO mapreduce.ImportJobBase: Transferred 113 bytes in 187.8721 seconds (0.6015 bytes/sec)
+25/01/08 02:13:54 INFO mapreduce.ImportJobBase: Retrieved 7 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #verify data in hdfs..
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop2
+Found 2 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 02:13 /user/cloudera/sqoop2/_SUCCESS
+-rw-r--r--   1 cloudera supergroup        113 2025-01-08 02:13 /user/cloudera/sqoop2/part-m-00000
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop2/part-m-00000
+3,67,38,Arjun
+4,88,27,Bheem
+5,71,77,Nakula
+6,70,20,Sahadeva
+7,93,2,Draupadi
+9,84,52,Duryodhana
+14,81,71,Narayana
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #3 sqoop import using where and column optioins...
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --m 1 --table newdata --target-dir /user/cloudera/sqoop3 --where "amount>50" --columns id,name,amount
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 02:22:04 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 02:22:04 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 02:22:06 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 02:22:06 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 02:22:10 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 02:22:10 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 02:22:10 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/8b8eef654ffdf297b4a0f5d208431517/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 02:22:35 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/8b8eef654ffdf297b4a0f5d208431517/newdata.jar
+25/01/08 02:22:35 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 02:22:35 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 02:22:35 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 02:22:35 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 02:22:35 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 02:22:35 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 02:22:38 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 02:22:45 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 02:22:46 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 02:22:59 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:22:59 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:23:01 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:23:07 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 02:23:07 INFO mapreduce.JobSubmitter: number of splits:1
+25/01/08 02:23:09 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0003
+25/01/08 02:23:12 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0003
+25/01/08 02:23:13 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0003/
+25/01/08 02:23:13 INFO mapreduce.Job: Running job: job_1736327762537_0003
+25/01/08 02:24:29 INFO mapreduce.Job: Job job_1736327762537_0003 running in uber mode : false
+25/01/08 02:24:29 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 02:25:46 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 02:25:49 INFO mapreduce.Job: Job job_1736327762537_0003 completed successfully
+25/01/08 02:25:51 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=151841
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=87
+		HDFS: Number of bytes written=93
+		HDFS: Number of read operations=4
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Other local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=66150
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=66150
+		Total vcore-milliseconds taken by all map tasks=66150
+		Total megabyte-milliseconds taken by all map tasks=67737600
+	Map-Reduce Framework
+		Map input records=7
+		Map output records=7
+		Input split bytes=87
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=1002
+		CPU time spent (ms)=5900
+		Physical memory (bytes) snapshot=104169472
+		Virtual memory (bytes) snapshot=2729603072
+		Total committed heap usage (bytes)=52822016
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=93
+25/01/08 02:25:51 INFO mapreduce.ImportJobBase: Transferred 93 bytes in 186.1986 seconds (0.4995 bytes/sec)
+25/01/08 02:25:51 INFO mapreduce.ImportJobBase: Retrieved 7 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #verify the data in hdfs...
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop3
+Found 2 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 02:25 /user/cloudera/sqoop3/_SUCCESS
+-rw-r--r--   1 cloudera supergroup         93 2025-01-08 02:25 /user/cloudera/sqoop3/part-m-00000
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop3/part-m-00000
+3,Arjun,67
+4,Bheem,88
+5,Nakula,71
+6,Sahadeva,70
+7,Draupadi,93
+9,Duryodhana,84
+14,Narayana,81
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #4th sqoop import using query...
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --m 1  --delete-target-dir --target-dir /user/cloudera/sqoop4 --query "select * from newdata where \$CONDITIONS"
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 02:40:13 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 02:40:13 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 02:40:15 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 02:40:15 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 02:40:18 INFO manager.SqlManager: Executing SQL statement: select * from newdata where  (1 = 0) 
+25/01/08 02:40:19 INFO manager.SqlManager: Executing SQL statement: select * from newdata where  (1 = 0) 
+25/01/08 02:40:19 INFO manager.SqlManager: Executing SQL statement: select * from newdata where  (1 = 0) 
+25/01/08 02:40:19 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/c265621decca1b6db5da27aef98bd3b9/QueryResult.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 02:40:44 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/c265621decca1b6db5da27aef98bd3b9/QueryResult.jar
+25/01/08 02:40:53 INFO tool.ImportTool: Destination directory /user/cloudera/sqoop4 is not present, hence not deleting.
+25/01/08 02:40:53 INFO mapreduce.ImportJobBase: Beginning query import.
+25/01/08 02:40:53 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 02:40:54 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 02:40:54 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 02:40:55 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 02:41:05 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:41:05 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:41:07 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:41:13 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 02:41:14 INFO mapreduce.JobSubmitter: number of splits:1
+25/01/08 02:41:16 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0004
+25/01/08 02:41:20 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0004
+25/01/08 02:41:21 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0004/
+25/01/08 02:41:21 INFO mapreduce.Job: Running job: job_1736327762537_0004
+25/01/08 02:42:30 INFO mapreduce.Job: Job job_1736327762537_0004 running in uber mode : false
+25/01/08 02:42:30 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 02:43:25 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 02:43:29 INFO mapreduce.Job: Job job_1736327762537_0004 completed successfully
+25/01/08 02:43:30 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=151237
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=87
+		HDFS: Number of bytes written=263
+		HDFS: Number of read operations=4
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Other local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=48512
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=48512
+		Total vcore-milliseconds taken by all map tasks=48512
+		Total megabyte-milliseconds taken by all map tasks=49676288
+	Map-Reduce Framework
+		Map input records=15
+		Map output records=15
+		Input split bytes=87
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=379
+		CPU time spent (ms)=5750
+		Physical memory (bytes) snapshot=106524672
+		Virtual memory (bytes) snapshot=2729467904
+		Total committed heap usage (bytes)=52822016
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=263
+25/01/08 02:43:30 INFO mapreduce.ImportJobBase: Transferred 263 bytes in 156.5339 seconds (1.6801 bytes/sec)
+25/01/08 02:43:30 INFO mapreduce.ImportJobBase: Retrieved 15 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #verify in hdfs 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop4
+Found 2 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 02:43 /user/cloudera/sqoop4/_SUCCESS
+-rw-r--r--   1 cloudera supergroup        263 2025-01-08 02:43 /user/cloudera/sqoop4/part-m-00000
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop4/part-m-00000
+1,50,39,Krishna
+2,43,99,Radha
+3,67,38,Arjun
+4,88,27,Bheem
+5,71,77,Nakula
+6,70,20,Sahadeva
+7,93,2,Draupadi
+8,32,56,Karna
+9,84,52,Duryodhana
+10,10,93,Bhishma
+11,23,45,Subhadra
+12,33,45,Damodara
+13,14,82,Bhishma pithamaha
+14,81,71,Narayana
+15,11,45,Vasudeva suthahh
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 5th sqoop import 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --table newdata --m 2 --split-by id --target-dir /user/cloudera/sqoop5
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 02:53:48 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 02:53:48 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 02:53:50 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 02:53:50 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 02:53:53 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 02:53:54 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 02:53:54 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/50aecfd550bcca095e3d4ada621d498f/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 02:54:20 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/50aecfd550bcca095e3d4ada621d498f/newdata.jar
+25/01/08 02:54:20 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 02:54:20 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 02:54:20 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 02:54:20 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 02:54:20 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 02:54:20 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 02:54:22 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 02:54:29 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 02:54:30 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 02:54:43 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:54:46 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:54:47 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:54:49 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:54:50 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 02:54:52 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 02:54:52 INFO db.DataDrivenDBInputFormat: BoundingValsQuery: SELECT MIN(`id`), MAX(`id`) FROM `newdata`
+25/01/08 02:54:52 INFO db.IntegerSplitter: Split size: 7; Num splits: 2 from: 1 to: 15
+25/01/08 02:54:52 INFO mapreduce.JobSubmitter: number of splits:2
+25/01/08 02:54:54 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0005
+25/01/08 02:54:58 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0005
+25/01/08 02:54:58 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0005/
+25/01/08 02:54:58 INFO mapreduce.Job: Running job: job_1736327762537_0005
+25/01/08 02:56:07 INFO mapreduce.Job: Job job_1736327762537_0005 running in uber mode : false
+25/01/08 02:56:07 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 02:58:10 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 02:58:15 INFO mapreduce.Job: Job job_1736327762537_0005 completed successfully
+25/01/08 02:58:17 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=303364
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=198
+		HDFS: Number of bytes written=263
+		HDFS: Number of read operations=8
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=4
+	Job Counters 
+		Launched map tasks=2
+		Other local map tasks=2
+		Total time spent by all maps in occupied slots (ms)=230026
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=230026
+		Total vcore-milliseconds taken by all map tasks=230026
+		Total megabyte-milliseconds taken by all map tasks=235546624
+	Map-Reduce Framework
+		Map input records=15
+		Map output records=15
+		Input split bytes=198
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=2182
+		CPU time spent (ms)=12000
+		Physical memory (bytes) snapshot=208216064
+		Virtual memory (bytes) snapshot=5464014848
+		Total committed heap usage (bytes)=105644032
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=263
+25/01/08 02:58:17 INFO mapreduce.ImportJobBase: Transferred 263 bytes in 227.7175 seconds (1.1549 bytes/sec)
+25/01/08 02:58:17 INFO mapreduce.ImportJobBase: Retrieved 15 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #verify in hdfs 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop5
+Found 3 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 02:58 /user/cloudera/sqoop5/_SUCCESS
+-rw-r--r--   1 cloudera supergroup        106 2025-01-08 02:58 /user/cloudera/sqoop5/part-m-00000
+-rw-r--r--   1 cloudera supergroup        157 2025-01-08 02:58 /user/cloudera/sqoop5/part-m-00001
+[cloudera@quickstart ~]$ # as we used m as 2, 2 mappers are created after sqoop import, lets read the data of those maps 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop5/part-m-00000
+1,50,39,Krishna
+2,43,99,Radha
+3,67,38,Arjun
+4,88,27,Bheem
+5,71,77,Nakula
+6,70,20,Sahadeva
+7,93,2,Draupadi
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop5/part-m-00001
+8,32,56,Karna
+9,84,52,Duryodhana
+10,10,93,Bhishma
+11,23,45,Subhadra
+12,33,45,Damodara
+13,14,82,Bhishma pithamaha
+14,81,71,Narayana
+15,11,45,Vasudeva suthahh
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #sqoop 6 import 3 mappers 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --table newdata --m 3 --split-by id --target-dir /user/cloudera/sqoop6
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 03:12:50 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 03:12:50 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 03:12:51 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 03:12:51 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 03:12:55 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:12:56 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:12:56 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/c41bb4a75b379991240cebaf41be65dc/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 03:13:18 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/c41bb4a75b379991240cebaf41be65dc/newdata.jar
+25/01/08 03:13:19 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 03:13:19 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 03:13:19 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 03:13:19 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 03:13:19 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 03:13:19 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 03:13:21 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 03:13:28 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 03:13:29 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 03:13:41 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:42 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:43 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:45 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:46 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:46 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:46 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:13:48 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 03:13:48 INFO db.DataDrivenDBInputFormat: BoundingValsQuery: SELECT MIN(`id`), MAX(`id`) FROM `newdata`
+25/01/08 03:13:48 INFO db.IntegerSplitter: Split size: 4; Num splits: 3 from: 1 to: 15
+25/01/08 03:13:48 INFO mapreduce.JobSubmitter: number of splits:3
+25/01/08 03:13:49 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0007
+25/01/08 03:13:52 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0007
+25/01/08 03:13:53 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0007/
+25/01/08 03:13:53 INFO mapreduce.Job: Running job: job_1736327762537_0007
+25/01/08 03:15:00 INFO mapreduce.Job: Job job_1736327762537_0007 running in uber mode : false
+25/01/08 03:15:00 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 03:17:33 INFO mapreduce.Job:  map 67% reduce 0%
+25/01/08 03:17:34 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 03:17:41 INFO mapreduce.Job: Job job_1736327762537_0007 completed successfully
+25/01/08 03:17:43 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=455046
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=298
+		HDFS: Number of bytes written=263
+		HDFS: Number of read operations=12
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=6
+	Job Counters 
+		Launched map tasks=3
+		Other local map tasks=3
+		Total time spent by all maps in occupied slots (ms)=442508
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=442508
+		Total vcore-milliseconds taken by all map tasks=442508
+		Total megabyte-milliseconds taken by all map tasks=453128192
+	Map-Reduce Framework
+		Map input records=15
+		Map output records=15
+		Input split bytes=298
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=6040
+		CPU time spent (ms)=19810
+		Physical memory (bytes) snapshot=313331712
+		Virtual memory (bytes) snapshot=8188878848
+		Total committed heap usage (bytes)=158466048
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=263
+25/01/08 03:17:43 INFO mapreduce.ImportJobBase: Transferred 263 bytes in 254.5658 seconds (1.0331 bytes/sec)
+25/01/08 03:17:43 INFO mapreduce.ImportJobBase: Retrieved 15 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop6
+Found 4 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 03:17 /user/cloudera/sqoop6/_SUCCESS
+-rw-r--r--   1 cloudera supergroup         73 2025-01-08 03:17 /user/cloudera/sqoop6/part-m-00000
+-rw-r--r--   1 cloudera supergroup         83 2025-01-08 03:17 /user/cloudera/sqoop6/part-m-00001
+-rw-r--r--   1 cloudera supergroup        107 2025-01-08 03:17 /user/cloudera/sqoop6/part-m-00002
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop6/part-m-00000
+1,50,39,Krishna
+2,43,99,Radha
+3,67,38,Arjun
+4,88,27,Bheem
+5,71,77,Nakula
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop6/part-m-00001
+6,70,20,Sahadeva
+7,93,2,Draupadi
+8,32,56,Karna
+9,84,52,Duryodhana
+10,10,93,Bhishma
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop6/part-m-00002
+11,23,45,Subhadra
+12,33,45,Damodara
+13,14,82,Bhishma pithamaha
+14,81,71,Narayana
+15,11,45,Vasudeva suthahh
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ next sqoop import 7
+-bash: next: command not found
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --table newdata --m 4 --split-by id --target-dir /user/cloudera/sqoop7
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 03:21:27 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 03:21:27 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 03:21:29 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 03:21:29 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 03:21:32 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:21:33 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:21:33 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/f81d40c443a626bad3a05fb5f4aa7453/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 03:21:59 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/f81d40c443a626bad3a05fb5f4aa7453/newdata.jar
+25/01/08 03:21:59 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 03:21:59 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 03:21:59 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 03:21:59 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 03:21:59 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 03:21:59 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 03:22:02 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 03:22:08 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 03:22:10 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 03:22:23 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:22:24 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:22:27 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:22:28 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 03:22:28 INFO db.DataDrivenDBInputFormat: BoundingValsQuery: SELECT MIN(`id`), MAX(`id`) FROM `newdata`
+25/01/08 03:22:28 INFO db.IntegerSplitter: Split size: 3; Num splits: 4 from: 1 to: 15
+25/01/08 03:22:29 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:22:29 INFO mapreduce.JobSubmitter: number of splits:4
+25/01/08 03:22:30 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0008
+25/01/08 03:22:33 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0008
+25/01/08 03:22:34 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0008/
+25/01/08 03:22:34 INFO mapreduce.Job: Running job: job_1736327762537_0008
+25/01/08 03:23:34 INFO mapreduce.Job: Job job_1736327762537_0008 running in uber mode : false
+25/01/08 03:23:34 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 03:27:03 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 03:27:13 INFO mapreduce.Job: Job job_1736327762537_0008 completed successfully
+25/01/08 03:27:14 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=606728
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=396
+		HDFS: Number of bytes written=263
+		HDFS: Number of read operations=16
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=8
+	Job Counters 
+		Launched map tasks=4
+		Other local map tasks=4
+		Total time spent by all maps in occupied slots (ms)=818880
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=818880
+		Total vcore-milliseconds taken by all map tasks=818880
+		Total megabyte-milliseconds taken by all map tasks=838533120
+	Map-Reduce Framework
+		Map input records=15
+		Map output records=15
+		Input split bytes=396
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=11014
+		CPU time spent (ms)=28130
+		Physical memory (bytes) snapshot=405999616
+		Virtual memory (bytes) snapshot=10918060032
+		Total committed heap usage (bytes)=211288064
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=263
+25/01/08 03:27:15 INFO mapreduce.ImportJobBase: Transferred 263 bytes in 305.9213 seconds (0.8597 bytes/sec)
+25/01/08 03:27:15 INFO mapreduce.ImportJobBase: Retrieved 15 records.
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop7
+Found 5 items
+-rw-r--r--   1 cloudera supergroup          0 2025-01-08 03:27 /user/cloudera/sqoop7/_SUCCESS
+-rw-r--r--   1 cloudera supergroup         58 2025-01-08 03:26 /user/cloudera/sqoop7/part-m-00000
+-rw-r--r--   1 cloudera supergroup         62 2025-01-08 03:26 /user/cloudera/sqoop7/part-m-00001
+-rw-r--r--   1 cloudera supergroup         54 2025-01-08 03:26 /user/cloudera/sqoop7/part-m-00002
+-rw-r--r--   1 cloudera supergroup         89 2025-01-08 03:26 /user/cloudera/sqoop7/part-m-00003
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #adding few more rows to newdata table in mysql.. for incremental functionality.. 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ mysql -uroot -pcloudera
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 51
+Server version: 5.1.73 Source distribution
+
+Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use metadata;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++--------------------+
+| Tables_in_metadata |
++--------------------+
+| copydata           |
+| exportcopy         |
+| newdata            |
++--------------------+
+3 rows in set (0.01 sec)
+
+mysql> select * from newdata;
++------+--------+---------+-------------------+
+| id   | amount | amount2 | name              |
++------+--------+---------+-------------------+
+|    1 |     50 |      39 | Krishna           |
+|    2 |     43 |      99 | Radha             |
+|    3 |     67 |      38 | Arjun             |
+|    4 |     88 |      27 | Bheem             |
+|    5 |     71 |      77 | Nakula            |
+|    6 |     70 |      20 | Sahadeva          |
+|    7 |     93 |       2 | Draupadi          |
+|    8 |     32 |      56 | Karna             |
+|    9 |     84 |      52 | Duryodhana        |
+|   10 |     10 |      93 | Bhishma           |
+|   11 |     23 |      45 | Subhadra          |
+|   12 |     33 |      45 | Damodara          |
+|   13 |     14 |      82 | Bhishma pithamaha |
+|   14 |     81 |      71 | Narayana          |
+|   15 |     11 |      45 | Vasudeva suthahh  |
++------+--------+---------+-------------------+
+15 rows in set (0.03 sec)
+
+mysql> insert into newdata(id, amount, amount2, name)
+    -> Values(16, 45, 67, 'Hare Krishna'),
+    -> (17, 56, 90, 'Jagannatha'),
+    -> (18, 35, 96, 'Kunti');
+Query OK, 3 rows affected (0.05 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from newdata; 
++------+--------+---------+-------------------+
+| id   | amount | amount2 | name              |
++------+--------+---------+-------------------+
+|    1 |     50 |      39 | Krishna           |
+|    2 |     43 |      99 | Radha             |
+|    3 |     67 |      38 | Arjun             |
+|    4 |     88 |      27 | Bheem             |
+|    5 |     71 |      77 | Nakula            |
+|    6 |     70 |      20 | Sahadeva          |
+|    7 |     93 |       2 | Draupadi          |
+|    8 |     32 |      56 | Karna             |
+|    9 |     84 |      52 | Duryodhana        |
+|   10 |     10 |      93 | Bhishma           |
+|   11 |     23 |      45 | Subhadra          |
+|   12 |     33 |      45 | Damodara          |
+|   13 |     14 |      82 | Bhishma pithamaha |
+|   14 |     81 |      71 | Narayana          |
+|   15 |     11 |      45 | Vasudeva suthahh  |
+|   16 |     45 |      67 | Hare Krishna      |
+|   17 |     56 |      90 | Jagannatha        |
+|   18 |     35 |      96 | Kunti             |
++------+--------+---------+-------------------+
+18 rows in set (0.01 sec)
+
+mysql> quit 
+Bye
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ next sqoop import for incremental append 
+[cloudera@quickstart ~]$ sqoop import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --m 1 --table newdata --target-dir /user/cloudera/sqoop8 --incremental append --check-column id --last-value 15
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 03:38:26 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 03:38:26 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+25/01/08 03:38:27 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 03:38:27 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 03:38:31 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:38:32 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:38:32 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/f87f0a64877dbfac12b59e148657e90a/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 03:38:55 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/f87f0a64877dbfac12b59e148657e90a/newdata.jar
+25/01/08 03:39:03 INFO tool.ImportTool: Maximal id query for free form incremental import: SELECT MAX(`id`) FROM `newdata`
+25/01/08 03:39:03 INFO tool.ImportTool: Incremental import based on column `id`
+25/01/08 03:39:03 INFO tool.ImportTool: Lower bound value: 15
+25/01/08 03:39:03 INFO tool.ImportTool: Upper bound value: 18
+25/01/08 03:39:03 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 03:39:03 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 03:39:03 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 03:39:03 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 03:39:03 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 03:39:03 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 03:39:04 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 03:39:04 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 03:39:06 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 03:39:17 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:39:17 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:39:18 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:39:20 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:39:23 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:39:24 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:39:26 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 03:39:26 INFO mapreduce.JobSubmitter: number of splits:1
+25/01/08 03:39:28 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0009
+25/01/08 03:39:31 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0009
+25/01/08 03:39:31 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0009/
+25/01/08 03:39:31 INFO mapreduce.Job: Running job: job_1736327762537_0009
+25/01/08 03:40:30 INFO mapreduce.Job: Job job_1736327762537_0009 running in uber mode : false
+25/01/08 03:40:31 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 03:41:18 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 03:41:20 INFO mapreduce.Job: Job job_1736327762537_0009 completed successfully
+25/01/08 03:41:21 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=152062
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=87
+		HDFS: Number of bytes written=57
+		HDFS: Number of read operations=4
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Other local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=39808
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=39808
+		Total vcore-milliseconds taken by all map tasks=39808
+		Total megabyte-milliseconds taken by all map tasks=40763392
+	Map-Reduce Framework
+		Map input records=3
+		Map output records=3
+		Input split bytes=87
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=348
+		CPU time spent (ms)=5200
+		Physical memory (bytes) snapshot=127746048
+		Virtual memory (bytes) snapshot=2729795584
+		Total committed heap usage (bytes)=52822016
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=57
+25/01/08 03:41:21 INFO mapreduce.ImportJobBase: Transferred 57 bytes in 137.2504 seconds (0.4153 bytes/sec)
+25/01/08 03:41:21 INFO mapreduce.ImportJobBase: Retrieved 3 records.
+25/01/08 03:41:22 INFO util.AppendUtils: Creating missing output directory - sqoop8
+25/01/08 03:41:22 INFO tool.ImportTool: Incremental import complete! To run another incremental import of all data following this import, supply the following arguments:
+25/01/08 03:41:22 INFO tool.ImportTool:  --incremental append
+25/01/08 03:41:22 INFO tool.ImportTool:   --check-column id
+25/01/08 03:41:22 INFO tool.ImportTool:   --last-value 18
+25/01/08 03:41:22 INFO tool.ImportTool: (Consider saving this with 'sqoop job --create')
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #lets verify hdfs..
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoop8
+Found 1 items
+-rw-r--r--   1 cloudera supergroup         57 2025-01-08 03:41 /user/cloudera/sqoop8/part-m-00000
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoop8/part-m-00000
+16,45,67,Hare Krishna
+17,56,90,Jagannatha
+18,35,96,Kunti
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #sqoop job creation...
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop job --create runjob -- import --connect jdbc:mysql://localhost/metadata --username root --password cloudera --table newdata --m 1 --target-dir /user/cloudera/sqoopjob --incremental append --check-column id --last-value 0
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 03:45:24 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+25/01/08 03:45:29 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+[cloudera@quickstart ~]$ sqoop job --show runjob
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 03:46:34 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+Enter password: 
+Job: runjob
+Tool: import
+Options:
+----------------------------
+verbose = false
+hcatalog.drop.and.create.table = false
+incremental.last.value = 0
+db.connect.string = jdbc:mysql://localhost/metadata
+codegen.output.delimiters.escape = 0
+codegen.output.delimiters.enclose.required = false
+codegen.input.delimiters.field = 0
+mainframe.input.dataset.type = p
+split.limit = null
+hbase.create.table = false
+db.require.password = true
+hdfs.append.dir = true
+db.table = newdata
+codegen.input.delimiters.escape = 0
+accumulo.create.table = false
+import.fetch.size = null
+codegen.input.delimiters.enclose.required = false
+db.username = root
+reset.onemapper = false
+codegen.output.delimiters.record = 10
+import.max.inline.lob.size = 16777216
+sqoop.throwOnError = false
+hbase.bulk.load.enabled = false
+hcatalog.create.table = false
+db.clear.staging.table = false
+incremental.col = id
+codegen.input.delimiters.record = 0
+enable.compression = false
+hive.overwrite.table = false
+hive.import = false
+codegen.input.delimiters.enclose = 0
+accumulo.batch.size = 10240000
+hive.drop.delims = false
+customtool.options.jsonmap = {}
+codegen.output.delimiters.enclose = 0
+hdfs.delete-target.dir = false
+codegen.output.dir = .
+codegen.auto.compile.dir = true
+relaxed.isolation = false
+mapreduce.num.mappers = 1
+accumulo.max.latency = 5000
+import.direct.split.size = 0
+sqlconnection.metadata.transaction.isolation.level = 2
+codegen.output.delimiters.field = 44
+export.new.update = UpdateOnly
+incremental.mode = AppendRows
+hdfs.file.format = TextFile
+sqoop.oracle.escaping.disabled = true
+codegen.compile.dir = /tmp/sqoop-cloudera/compile/bc4d7cbed67a53c52f6cc83f466a5616
+direct.import = false
+temporary.dirRoot = _sqoop
+hdfs.target.dir = /user/cloudera/sqoopjob
+hive.fail.table.exists = false
+db.batch = false
+[cloudera@quickstart ~]$ mysql -uroot -pcloudera
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 57
+Server version: 5.1.73 Source distribution
+
+Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use metadata;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> insert into newdata(id, amount, amount2, name) Values(19, 43, 27, 'Madri'), (20, 57, 80, 'Gandari');
+Query OK, 2 rows affected (0.04 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from newdata;
++------+--------+---------+-------------------+
+| id   | amount | amount2 | name              |
++------+--------+---------+-------------------+
+|    1 |     50 |      39 | Krishna           |
+|    2 |     43 |      99 | Radha             |
+|    3 |     67 |      38 | Arjun             |
+|    4 |     88 |      27 | Bheem             |
+|    5 |     71 |      77 | Nakula            |
+|    6 |     70 |      20 | Sahadeva          |
+|    7 |     93 |       2 | Draupadi          |
+|    8 |     32 |      56 | Karna             |
+|    9 |     84 |      52 | Duryodhana        |
+|   10 |     10 |      93 | Bhishma           |
+|   11 |     23 |      45 | Subhadra          |
+|   12 |     33 |      45 | Damodara          |
+|   13 |     14 |      82 | Bhishma pithamaha |
+|   14 |     81 |      71 | Narayana          |
+|   15 |     11 |      45 | Vasudeva suthahh  |
+|   16 |     45 |      67 | Hare Krishna      |
+|   17 |     56 |      90 | Jagannatha        |
+|   18 |     35 |      96 | Kunti             |
+|   19 |     43 |      27 | Madri             |
+|   20 |     57 |      80 | Gandari           |
++------+--------+---------+-------------------+
+20 rows in set (0.03 sec)
+
+mysql> quit;
+Bye
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #running sqoop job... 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ sqoop job -exec runjob
+Warning: /usr/lib/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+25/01/08 03:48:50 INFO sqoop.Sqoop: Running Sqoop version: 1.4.6-cdh5.12.0
+Enter password: 
+25/01/08 03:49:14 INFO manager.MySQLManager: Preparing to use a MySQL streaming resultset.
+25/01/08 03:49:14 INFO tool.CodeGenTool: Beginning code generation
+25/01/08 03:49:16 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:49:16 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM `newdata` AS t LIMIT 1
+25/01/08 03:49:16 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/lib/hadoop-mapreduce
+Note: /tmp/sqoop-cloudera/compile/b712cff82ea52decd9112b3f664f93c1/newdata.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+25/01/08 03:49:42 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-cloudera/compile/b712cff82ea52decd9112b3f664f93c1/newdata.jar
+25/01/08 03:49:54 INFO tool.ImportTool: Maximal id query for free form incremental import: SELECT MAX(`id`) FROM `newdata`
+25/01/08 03:49:54 INFO tool.ImportTool: Incremental import based on column `id`
+25/01/08 03:49:54 INFO tool.ImportTool: Lower bound value: 0
+25/01/08 03:49:54 INFO tool.ImportTool: Upper bound value: 20
+25/01/08 03:49:54 WARN manager.MySQLManager: It looks like you are importing from mysql.
+25/01/08 03:49:54 WARN manager.MySQLManager: This transfer can be faster! Use the --direct
+25/01/08 03:49:54 WARN manager.MySQLManager: option to exercise a MySQL-specific fast path.
+25/01/08 03:49:54 INFO manager.MySQLManager: Setting zero DATETIME behavior to convertToNull (mysql)
+25/01/08 03:49:54 INFO mapreduce.ImportJobBase: Beginning import of newdata
+25/01/08 03:49:54 INFO Configuration.deprecation: mapred.job.tracker is deprecated. Instead, use mapreduce.jobtracker.address
+25/01/08 03:49:54 INFO Configuration.deprecation: mapred.jar is deprecated. Instead, use mapreduce.job.jar
+25/01/08 03:49:54 INFO Configuration.deprecation: mapred.map.tasks is deprecated. Instead, use mapreduce.job.maps
+25/01/08 03:49:56 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+25/01/08 03:50:07 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:50:09 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:50:13 WARN hdfs.DFSClient: Caught exception 
+java.lang.InterruptedException
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Thread.join(Thread.java:1252)
+	at java.lang.Thread.join(Thread.java:1326)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.closeResponder(DFSOutputStream.java:952)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.endBlock(DFSOutputStream.java:690)
+	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:879)
+25/01/08 03:50:15 INFO db.DBInputFormat: Using read commited transaction isolation
+25/01/08 03:50:16 INFO mapreduce.JobSubmitter: number of splits:1
+25/01/08 03:50:17 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1736327762537_0010
+25/01/08 03:50:20 INFO impl.YarnClientImpl: Submitted application application_1736327762537_0010
+25/01/08 03:50:21 INFO mapreduce.Job: The url to track the job: http://quickstart.cloudera:8088/proxy/application_1736327762537_0010/
+25/01/08 03:50:21 INFO mapreduce.Job: Running job: job_1736327762537_0010
+25/01/08 03:51:20 INFO mapreduce.Job: Job job_1736327762537_0010 running in uber mode : false
+25/01/08 03:51:20 INFO mapreduce.Job:  map 0% reduce 0%
+25/01/08 03:52:05 INFO mapreduce.Job:  map 100% reduce 0%
+25/01/08 03:52:08 INFO mapreduce.Job: Job job_1736327762537_0010 completed successfully
+25/01/08 03:52:09 INFO mapreduce.Job: Counters: 30
+	File System Counters
+		FILE: Number of bytes read=0
+		FILE: Number of bytes written=152457
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=87
+		HDFS: Number of bytes written=352
+		HDFS: Number of read operations=4
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters 
+		Launched map tasks=1
+		Other local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=38918
+		Total time spent by all reduces in occupied slots (ms)=0
+		Total time spent by all map tasks (ms)=38918
+		Total vcore-milliseconds taken by all map tasks=38918
+		Total megabyte-milliseconds taken by all map tasks=39852032
+	Map-Reduce Framework
+		Map input records=20
+		Map output records=20
+		Input split bytes=87
+		Spilled Records=0
+		Failed Shuffles=0
+		Merged Map outputs=0
+		GC time elapsed (ms)=338
+		CPU time spent (ms)=5400
+		Physical memory (bytes) snapshot=126918656
+		Virtual memory (bytes) snapshot=2729603072
+		Total committed heap usage (bytes)=52822016
+	File Input Format Counters 
+		Bytes Read=0
+	File Output Format Counters 
+		Bytes Written=352
+25/01/08 03:52:09 INFO mapreduce.ImportJobBase: Transferred 352 bytes in 134.2696 seconds (2.6216 bytes/sec)
+25/01/08 03:52:09 INFO mapreduce.ImportJobBase: Retrieved 20 records.
+25/01/08 03:52:09 INFO util.AppendUtils: Creating missing output directory - sqoopjob
+25/01/08 03:52:09 INFO tool.ImportTool: Saving incremental import state to the metastore
+25/01/08 03:52:11 INFO tool.ImportTool: Updated data for job: runjob
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #verify hdfs.. 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ hadoop fs -ls /user/cloudera/sqoopjob
+Found 1 items
+-rw-r--r--   1 cloudera supergroup        352 2025-01-08 03:52 /user/cloudera/sqoopjob/part-m-00000
+[cloudera@quickstart ~]$ hadoop fs -cat /user/cloudera/sqoopjob/part-m-00000
+1,50,39,Krishna
+2,43,99,Radha
+3,67,38,Arjun
+4,88,27,Bheem
+5,71,77,Nakula
+6,70,20,Sahadeva
+7,93,2,Draupadi
+8,32,56,Karna
+9,84,52,Duryodhana
+10,10,93,Bhishma
+11,23,45,Subhadra
+12,33,45,Damodara
+13,14,82,Bhishma pithamaha
+14,81,71,Narayana
+15,11,45,Vasudeva suthahh
+16,45,67,Hare Krishna
+17,56,90,Jagannatha
+18,35,96,Kunti
+19,43,27,Madri
+20,57,80,Gandari
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ 
+[cloudera@quickstart ~]$ #sqoop next import... which is related to hive.. 
